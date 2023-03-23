@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Jumbotron, Container, Col, Form, Button, Card, CardColumns } from 'react-bootstrap';
 
 import Auth from '../utils/auth';
-import { saveBook, searchGoogleBooks } from '../utils/API';
+import { searchGoogleBooks } from '../utils/API';
+import { useMutation } from '@apollo/client';
 import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
 import { SAVE_BOOK } from '../utils/mutations';
 
@@ -16,7 +17,8 @@ const SearchBooks = () => {
   const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
   
   // create function to save book to database
-  cont [saveBook] = useMutation(SAVE_BOOK);
+  const [saveBook, {error}] = useMutation(SAVE_BOOK);
+  const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
   
   // set up useEffect hook to save `savedBookIds` list to localStorage on component unmount
   // learn more here: https://reactjs.org/docs/hooks-effect.html#effects-with-cleanup
@@ -33,9 +35,7 @@ const SearchBooks = () => {
     }
 
     try {
-      const response = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=${searchInput}`
-      );
+      const response = await searchGoogleBooks(searchInput);
 
       if (!response.ok) {
         throw new Error('something went wrong!');
@@ -71,9 +71,9 @@ const SearchBooks = () => {
     }
 
     try {
-      await saveBook({
-        variables: { newBook: { ...bookToSave } },
-      });
+      const { data } = await saveBook({
+        variables: { bookData: bookToSave },
+    });
 
       // if book successfully saves to user's account, save book id to state
       setSavedBookIds([...savedBookIds, bookToSave.bookId]);
@@ -98,8 +98,7 @@ const SearchBooks = () => {
                   size='lg'
                   placeholder='Search for a book'
                 />
-              </Col>
-              <Col xs={12} md={4}>
+  
                 <Button type='submit' variant='success' size='lg'>
                   Submit Search
                 </Button>
