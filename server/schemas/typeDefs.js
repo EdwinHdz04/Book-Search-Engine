@@ -1,5 +1,5 @@
 // import setup for Apollo Server with Express
-const { ggl } = require('apollo-server-express');
+const { gql } = require('apollo-server-express');
 
 
 const typeDefs = gql`
@@ -23,9 +23,9 @@ type Book {
     link: String
 }
 input InputBook {
-    bookId: String
+    bookId: String!
     authors: [String]
-    title: String
+    title: String!
     description: String
     image: String
     link: String
